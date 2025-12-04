@@ -25,7 +25,7 @@ Orezaは、ユーザーとAIが協働して創造的な作品を生み出すた�
 ### バックエンド（予定）
 - FastAPI
 - ComfyUI連携
-- Ollama / OpenAI (LLM)
+- Ollama / Oreza AI (LLM)
 - Tavily / SerpAPI (Web検索)
 
 ## プロジェクト構造
