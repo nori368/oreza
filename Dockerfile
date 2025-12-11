@@ -1,4 +1,5 @@
 # Dockerfile for Oreza Chat & Shopping
+# Updated: 2025-12-11 - Fixed bookmark navigation
 
 FROM python:3.11-slim
 
