@@ -396,100 +396,14 @@
             }
         }
 
-        /* Login Screen Styles */
+
         .hidden {
             display: none !important;
         }
 
-        #login-container {
-            max-width: 420px;
-            margin: 80px auto;
-            padding: 32px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            background: #ffffff;
-        }
 
-        #login-container h1 {
-            margin-bottom: 8px;
-            font-size: 1.8rem;
-            text-align: center;
-        }
 
-        #login-container p {
-            margin-bottom: 24px;
-            color: #666;
-            text-align: center;
-            font-size: 0.9rem;
-        }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        #login-container input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        #login-container input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        #login-button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        #login-button:hover {
-            background: #45a049;
-        }
-
-        .error-message {
-            color: #d9534f;
-            margin-top: 12px;
-            min-height: 1.2em;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        #logout-btn {
-            position: absolute;
-            top: 12px;
-            right: 20px;
-            padding: 8px 16px;
-            background: #f5f5f5;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-
-        #logout-btn:hover {
-            background: #e0e0e0;
-        }
         
         /* 透かし戻るボタンのスタイル */
         .oreza-back-btn {
@@ -532,27 +446,8 @@
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="login-container">
-        <h1>Oreza Test Login</h1>
-        <p>本番テスト用マスターIDでログインしてください。</p>
-
-        <div class="form-group">
-            <label for="login-id">ID</label>
-            <input id="login-id" type="text" autocomplete="username" placeholder="マスターID">
-        </div>
-
-        <div class="form-group">
-            <label for="login-password">Password</label>
-            <input id="login-password" type="password" autocomplete="current-password" placeholder="パスワード">
-        </div>
-
-        <button id="login-button" type="button">ログイン</button>
-        <p id="login-error" class="error-message"></p>
-    </div>
-
-    <!-- Chat Container (hidden by default) -->
-    <div id="chat-container" class="hidden">
+    <!-- Chat Container -->
+    <div id="chat-container">
         <!-- Connection Status Bar -->
         <div id="connectionStatus"></div>
         
@@ -753,21 +648,15 @@
         const MAX_RECONNECT_ATTEMPTS = 5;
         const KEEP_ALIVE_INTERVAL = 30000; // 30 seconds
 
-        // Login/Logout elements (will be initialized in DOMContentLoaded)
-        let loginContainer;
+
         let chatContainer;
-        let loginButton;
-        let loginError;
 
         // Initialize
         function initializeApp() {
             // Get DOM elements after DOM is loaded
-            loginContainer = document.getElementById("login-container");
             chatContainer = document.getElementById("chat-container");
-            loginButton = document.getElementById("login-button");
-            loginError = document.getElementById("login-error");
             
-            console.log('Initializing app...', {loginButton, chatContainer});
+            console.log('Initializing app...', {chatContainer});
             
             // Add global scroll-to-top button
             const scrollTopBtn = document.createElement('button');
@@ -806,7 +695,6 @@
                 chatArea.addEventListener('scroll', updateScrollButton);
             }
             
-            setupLoginHandlers();
             attachEventListeners();
         }
         
@@ -898,99 +786,7 @@
             initializeApp();
         }
 
-        // Login handlers
-        function setupLoginHandlers() {
-            if (loginButton) {
-                loginButton.addEventListener("click", handleLogin);
-                
-                // Allow Enter key to login
-                document.getElementById("login-password").addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") {
-                        handleLogin();
-                    }
-                });
-            }
 
-
-        }
-
-        async function handleLogin() {
-            const idInput = document.getElementById("login-id");
-            const passInput = document.getElementById("login-password");
-            const userId = idInput.value.trim();
-            const password = passInput.value;
-
-            if (!userId || !password) {
-                loginError.textContent = "ID とパスワードを入力してください。";
-                return;
-            }
-
-            loginError.textContent = "";
-            loginButton.disabled = true;
-            loginButton.textContent = "ログイン中...";
-
-            try {
-                const res = await fetch("/api/login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include", // Essential for cookies
-                    body: JSON.stringify({
-                        user_id: userId,
-                        password: password,
-                    }),
-                });
-
-                if (!res.ok) {
-                    loginError.textContent = "ログインに失敗しました。IDかパスワードが違います。";
-                    loginButton.disabled = false;
-                    loginButton.textContent = "ログイン";
-                    return;
-                }
-
-                // Login successful - show chat screen
-                loginContainer.classList.add("hidden");
-                chatContainer.classList.remove("hidden");
-                startKeepAlive();
-
-                // Clear password field
-                passInput.value = "";
-                
-                // Restore view from URL after login
-                restoreViewFromURL();
-            } catch (err) {
-                console.error(err);
-                loginError.textContent = "通信エラーが発生しました。しばらくしてからお試しください。";
-                loginButton.disabled = false;
-                loginButton.textContent = "ログイン";
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await fetch("/api/logout", {
-                    method: "POST",
-                    credentials: "include",
-                });
-            } catch (err) {
-                console.error("Logout error:", err);
-            }
-
-            // Show login screen
-            chatContainer.classList.add("hidden");
-            loginContainer.classList.remove("hidden");
-            
-            // Clear session
-            sessionId = null;
-            document.getElementById("chatArea").innerHTML = "";
-            
-            // Stop keep-alive
-            if (keepAliveInterval) {
-                clearInterval(keepAliveInterval);
-                keepAliveInterval = null;
-            }
-        }
 
         // Avatar functions removed
 
