@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oreza Shopping Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #fff;
+            color: #202124;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 40px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 700px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: box-shadow 0.2s;
+        }
+
+        .search-box:focus {
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+            border-color: rgba(223,225,229,0);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #5f6368;
+        }
+
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 30px;
+            padding: 0 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 12px 0;
+            cursor: pointer;
+            color: #5f6368;
+            font-size: 14px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #202124;
+        }
+
+        .tab.active {
+            color: #1a73e8;
+            border-bottom-color: #1a73e8;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 40px;
+        }
+
+        /* Official Account Registration Space */
+        .official-space {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .official-space h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .official-space p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            opacity: 0.95;
+        }
+
+        .register-form {
+            display: flex;
+            gap: 10px;
+            max-width: 600px;
+        }
+
+        .register-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .register-btn {
+            padding: 12px 30px;
+            background: white;
+            color: #764ba2;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .register-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Search Results */
+        .results-info {
+            color: #70757a;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .result-item:hover .result-title {
+            text-decoration: underline;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .result-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f1f3f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .result-domain {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-site-name {
+            font-size: 14px;
+            color: #202124;
+        }
+
+        .result-url {
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .result-title {
+            font-size: 20px;
+            color: #1a0dab;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .result-snippet {
+            font-size: 14px;
+            color: #4d5156;
+            line-height: 1.6;
+        }
+
+        .result-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #70757a;
+        }
+
+        .result-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #70757a;
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #70757a;
+        }
+
+        .no-results h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #202124;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+            }
+
+            .tabs {
+                padding: 0 20px;
+                overflow-x: auto;
+            }
+
+            main {
+                padding: 15px 20px;
+            }
+
+            .official-space {
+                padding: 20px;
+            }
+
+            .register-form {
+                flex-direction: column;
+            }
+
+            .result-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo" onclick="window.location.href='/'">Oreza</div>
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchInput" placeholder="検索キーワードを入力...">
+            <button class="search-btn" onclick="performSearch()">🔍</button>
+        </div>
+        <div class="user-icon">U</div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" data-tab="all">すべて</div>
+        <div class="tab" data-tab="images">画像</div>
+        <div class="tab" data-tab="news">ニュース</div>
+        <div class="tab" data-tab="videos">動画</div>
+        <div class="tab" data-tab="shopping">ショッピング</div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Official Account Registration Space -->
+        <div class="official-space">
+            <h2>公式アカウント登録</h2>
+            <p>
+                Orezaショッピングの公式アカウントに登録して、パーソナライズされた検索結果、お気に入り商品の管理、
+                AIソムリエによる専属アドバイスなど、さらに便利な機能をご利用いただけます。
+            </p>
+            <div class="register-form">
+                <input type="email" class="register-input" placeholder="メールアドレスを入力" id="emailInput">
+                <button class="register-btn" onclick="registerAccount()">登録する</button>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        <div id="resultsContainer">
+            <div class="results-info" id="resultsInfo"></div>
+            <div id="resultsList"></div>
+        </div>
+    </main>
+
+    <script>
+        let currentTab = 'all';
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentTab = this.dataset.tab;
+                
+                const query = document.getElementById('searchInput').value;
+                if (query.trim()) {
+                    performSearch();
+                }
+            });
+        });
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Perform search
+        async function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('検索キーワードを入力してください');
+                return;
+            }
+
+            const resultsInfo = document.getElementById('resultsInfo');
+            const resultsList = document.getElementById('resultsList');
+
+            // Show loading
+            resultsList.innerHTML = '<div class="loading">検索中...</div>';
+            resultsInfo.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/shopping/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        num: 10,
+                        search_type: currentTab
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('検索に失敗しました');
+                }
+
+                const data = await response.json();
+                displayResults(data.products, query);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <h3>エラーが発生しました</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display search results
+        function displayResults(products, query) {
+            const resultsInfo = document.getElementById('resultsInfo');
+            const resultsList = document.getElementById('resultsList');
+
+            if (!products || products.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <h3>検索結果が見つかりませんでした</h3>
+                        <p>「${query}」に一致する情報は見つかりませんでした。</p>
+                        <p>別のキーワードで検索してみてください。</p>
+                    </div>
+                `;
+                resultsInfo.innerHTML = '';
+                return;
+            }
+
+            resultsInfo.innerHTML = `約 ${products.length} 件の結果 （${(Math.random() * 0.5 + 0.2).toFixed(2)} 秒）`;
+
+            resultsList.innerHTML = products.map(product => {
+                const domain = extractDomain(product.product_url);
+                const icon = getIconForDomain(domain);
+                
+                return `
+                    <div class="result-item" onclick="window.open('${product.product_url}', '_blank')">
+                        <div class="result-header">
+                            <div class="result-icon">${icon}</div>
+                            <div class="result-domain">
+                                <div class="result-site-name">${domain}</div>
+                                <div class="result-url">${product.product_url}</div>
+                            </div>
+                        </div>
+                        <div class="result-title">${product.title}</div>
+                        <div class="result-snippet">${generateSnippet(product)}</div>
+                        <div class="result-meta">
+                            ${product.price !== '価格不明' ? `<span>💰 ${product.price}</span>` : ''}
+                            ${product.rating ? `<span>⭐ ${product.rating}</span>` : ''}
+                            ${product.delivery_info ? `<span>🚚 ${product.delivery_info}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Extract domain from URL
+        function extractDomain(url) {
+            try {
+                const urlObj = new URL(url);
+                return urlObj.hostname.replace('www.', '');
+            } catch {
+                return 'ショップ';
+            }
+        }
+
+        // Get icon for domain
+        function getIconForDomain(domain) {
+            const icons = {
+                'amazon.co.jp': '🛒',
+                'rakuten.co.jp': '🏪',
+                'yahoo.co.jp': 'Y',
+                'uniqlo.com': '👕',
+                'zozo.jp': '👗',
+                'default': '🏬'
+            };
+
+            for (const [key, icon] of Object.entries(icons)) {
+                if (domain.includes(key)) {
+                    return icon;
+                }
+            }
+            return icons.default;
+        }
+
+        // Generate snippet
+        function generateSnippet(product) {
+            const parts = [];
+            
+            if (product.rating && product.review_count) {
+                parts.push(`評価: ${product.rating} (${product.review_count}件のレビュー)`);
+            }
+            
+            if (product.delivery_info) {
+                parts.push(`配送: ${product.delivery_info}`);
+            }
+            
+            if (product.stock_status) {
+                parts.push(`在庫: ${product.stock_status}`);
+            }
+            
+            if (parts.length === 0) {
+                parts.push('商品の詳細情報はリンク先でご確認ください。');
+            }
+            
+            return parts.join(' • ');
+        }
+
+        // Register account
+        function registerAccount() {
+            const email = document.getElementById('emailInput').value.trim();
+            
+            if (!email) {
+                alert('メールアドレスを入力してください');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                alert('有効なメールアドレスを入力してください');
+                return;
+            }
+            
+            alert(`登録ありがとうございます！\n${email} に確認メールを送信しました。`);
+            document.getElementById('emailInput').value = '';
+        }
+
+        // Initial message
+        window.addEventListener('load', function() {
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = `
+                <div class="no-results">
+                    <h3>Orezaショッピング検索へようこそ</h3>
+                    <p>検索バーにキーワードを入力して、商品を検索してください。</p>
+                    <p>AIソムリエが最適な商品をご提案します。</p>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>

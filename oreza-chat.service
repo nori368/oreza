@@ -1,0 +1,33 @@
+# Systemd service file for Oreza Chat
+# Place this file in /etc/systemd/system/oreza-chat.service
+# Then run: sudo systemctl daemon-reload && sudo systemctl enable oreza-chat && sudo systemctl start oreza-chat
+
+[Unit]
+Description=Oreza Chat Application
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/oreza-chat
+Environment="PATH=/var/www/oreza-chat/venv/bin"
+EnvironmentFile=/var/www/oreza-chat/.env
+ExecStart=/var/www/oreza-chat/venv/bin/uvicorn app:app --host 127.0.0.1 --port 8000 --workers 4
+Restart=always
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/oreza-chat/data
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=oreza-chat
+
+[Install]
+WantedBy=multi-user.target

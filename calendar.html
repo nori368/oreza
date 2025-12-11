@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oreza カレンダー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .input-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .input-section h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], textarea {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .item-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .item-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .item-card.task {
+            border-left-color: #f5576c;
+        }
+
+        .item-card.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .item-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .item-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .item-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-complete {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge-medium {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .badge-low {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .item-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 Oreza カレンダー</h1>
+            <div class="header-buttons">
+                <a href="/index.html" style="text-decoration: none;">
+                    <button class="btn btn-secondary">💬 チャット</button>
+                </a>
+                <a href="/shopping.html" style="text-decoration: none;">
+                    <button class="btn btn-secondary">🛍️ ショッピング</button>
+                </a>
+            </div>
+        </header>
+
+        <div class="input-section">
+            <h2>✨ 予定・タスクを追加</h2>
+            <div class="input-group">
+                <input type="text" id="naturalInput" placeholder="例: 来週火曜の15時に歯医者、リマインドは30分前">
+                <button class="btn btn-primary" onclick="addFromNaturalLanguage()">追加</button>
+            </div>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                💡 自然な文章で入力してください。AIが自動で予定やタスクに変換します。
+            </p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('today')">今日</button>
+            <button class="tab" onclick="switchTab('week')">今週</button>
+            <button class="tab" onclick="switchTab('all')">すべて</button>
+        </div>
+
+        <div class="content-section">
+            <div id="itemList" class="item-list">
+                <div class="loading">読み込み中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'today';
+        let allItems = { events: [], tasks: [] };
+
+        // ページ読み込み時に今日の予定を取得
+        window.addEventListener('DOMContentLoaded', () => {
+            loadItems();
+        });
+
+        // タブ切り替え
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            loadItems();
+        }
+
+        // 予定・タスクを読み込み
+        async function loadItems() {
+            const itemList = document.getElementById('itemList');
+            itemList.innerHTML = '<div class="loading">読み込み中...</div>';
+
+            try {
+                let endpoint = '/api/calendar/today';
+                if (currentTab === 'week') {
+                    endpoint = '/api/calendar/week';
+                } else if (currentTab === 'all') {
+                    endpoint = '/api/calendar/all';
+                }
+
+                const response = await fetch(endpoint);
+                const data = await response.json();
+
+                allItems = data;
+                renderItems(data);
+            } catch (error) {
+                console.error('Error loading items:', error);
+                itemList.innerHTML = '<div class="empty-state">エラーが発生しました</div>';
+            }
+        }
+
+        // アイテムを表示
+        function renderItems(data) {
+            const itemList = document.getElementById('itemList');
+            const events = data.events || [];
+            const tasks = data.tasks || [];
+
+            if (events.length === 0 && tasks.length === 0) {
+                itemList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                        </svg>
+                        <h3>予定・タスクがありません</h3>
+                        <p>上の入力欄から追加してみましょう</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            // イベント
+            events.forEach(event => {
+                html += createItemCard(event, 'event');
+            });
+
+            // タスク
+            tasks.forEach(task => {
+                html += createItemCard(task, 'task');
+            });
+
+            itemList.innerHTML = html;
+        }
+
+        // アイテムカードを作成
+        function createItemCard(item, type) {
+            const isCompleted = item.status === 'completed';
+            const priorityBadge = item.priority ? `<span class="badge badge-${item.priority}">${item.priority.toUpperCase()}</span>` : '';
+            
+            let metaInfo = '';
+            if (type === 'event') {
+                metaInfo = `
+                    <div class="item-meta">
+                        <span>⏰ ${item.start_datetime || '未定'}</span>
+                        ${item.location ? `<span>📍 ${item.location}</span>` : ''}
+                        ${item.reminder_minutes ? `<span>🔔 ${item.reminder_minutes}分前</span>` : ''}
+                    </div>
+                `;
+            } else {
+                metaInfo = `
+                    <div class="item-meta">
+                        <span>📅 ${item.due_date || '未定'}</span>
+                        ${priorityBadge}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="item-card ${type} ${isCompleted ? 'completed' : ''}">
+                    <div class="item-header">
+                        <div class="item-title">${item.title}</div>
+                    </div>
+                    ${metaInfo}
+                    ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
+                    ${item.source_url ? `<div class="item-description"><a href="${item.source_url}" target="_blank">🔗 詳細を見る</a></div>` : ''}
+                    <div class="item-actions">
+                        ${!isCompleted ? `<button class="btn-complete" onclick="completeItem('${item.id}')">✓ 完了</button>` : ''}
+                        <button class="btn-delete" onclick="deleteItem('${item.id}')">🗑️ 削除</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 自然文から予定・タスクを追加
+        async function addFromNaturalLanguage() {
+            const input = document.getElementById('naturalInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                alert('テキストを入力してください');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/calendar/parse', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    input.value = '';
+                    alert('予定・タスクを追加しました！');
+                    loadItems();
+                } else {
+                    alert('エラー: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('エラーが発生しました');
+            }
+        }
+
+        // アイテムを完了
+        async function completeItem(itemId) {
+            try {
+                const response = await fetch(`/api/calendar/status/${itemId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'completed' })
+                });
+
+                if (response.ok) {
+                    loadItems();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // アイテムを削除
+        async function deleteItem(itemId) {
+            if (!confirm('本当に削除しますか？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/calendar/${itemId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadItems();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

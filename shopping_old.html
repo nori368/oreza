@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛍️ Oreza Shopping - AIソムリエ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .header img {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            padding: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .search-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background: #f5f5f5;
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .product-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .product-price {
+            font-size: 1.5em;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .product-meta {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-tag {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        .ai-summary {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .ai-summary-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .ai-summary-content {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .ai-summary-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .ai-summary-content li {
+            margin: 5px 0;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            color: #666;
+        }
+        
+        .no-results h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .search-input-group {
+                flex-direction: column;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <img src="/images/shopping_icon.png" alt="Shopping">
+                Oreza Shopping
+            </h1>
+            <p>AIソムリエがあなたの買い物をサポート</p>
+        </div>
+        
+        <div class="search-box">
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="商品キーワードを入力（例: ワンピース レディース）"
+                    onkeypress="if(event.key==='Enter') searchProducts()"
+                >
+                <button class="search-btn" id="searchBtn" onclick="searchProducts()">
+                    🔍 検索
+                </button>
+            </div>
+            <div style="font-size: 0.9em; color: #666;">
+                💡 ヒント: 「ワンピース 黒」「スニーカー メンズ」など、具体的なキーワードで検索してください
+            </div>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <div>🔄 商品を検索中...</div>
+        </div>
+        
+        <div id="results" class="products-grid"></div>
+    </div>
+    
+    <script>
+        const API_BASE = '';
+        
+        async function searchProducts() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('検索キーワードを入力してください');
+                return;
+            }
+            
+            const searchBtn = document.getElementById('searchBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            
+            // Show loading
+            searchBtn.disabled = true;
+            searchBtn.textContent = '検索中...';
+            loading.style.display = 'block';
+            results.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/shopping/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        num: 12
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayProducts(data.products);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                results.innerHTML = `
+                    <div class="no-results">
+                        <h2>エラーが発生しました</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 検索';
+                loading.style.display = 'none';
+            }
+        }
+        
+        function displayProducts(products) {
+            const results = document.getElementById('results');
+            
+            if (!products || products.length === 0) {
+                results.innerHTML = `
+                    <div class="no-results">
+                        <h2>商品が見つかりませんでした</h2>
+                        <p>別のキーワードで検索してみてください</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            results.innerHTML = products.map(product => `
+                <div class="product-card">
+                    ${product.image_url ? `
+                        <img src="${product.image_url}" alt="${product.title}" class="product-image">
+                    ` : `
+                        <div class="product-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">
+                            画像なし
+                        </div>
+                    `}
+                    <div class="product-info">
+                        <div class="product-title">${product.title}</div>
+                        <div class="product-price">${product.price}</div>
+                        
+                        <div class="product-meta">
+                            ${product.rating ? `<span class="meta-tag">⭐ ${product.rating}</span>` : ''}
+                            ${product.review_count ? `<span class="meta-tag">📝 ${product.review_count}件</span>` : ''}
+                            ${product.delivery_info ? `<span class="meta-tag">🚚 ${product.delivery_info}</span>` : ''}
+                            ${product.stock_status ? `<span class="meta-tag">📦 ${product.stock_status}</span>` : ''}
+                        </div>
+                        
+                        <div class="product-actions">
+                            <a href="${product.product_url}" target="_blank" class="btn btn-primary">
+                                🔗 商品ページへ
+                            </a>
+                            <button class="btn btn-secondary" onclick="analyzeProduct('${encodeURIComponent(JSON.stringify(product))}')">
+                                🤖 AI分析
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function analyzeProduct(productJson) {
+            const product = JSON.parse(decodeURIComponent(productJson));
+            
+            // Find the product card
+            const cards = document.querySelectorAll('.product-card');
+            let targetCard = null;
+            for (const card of cards) {
+                if (card.querySelector('.product-title').textContent === product.title) {
+                    targetCard = card;
+                    break;
+                }
+            }
+            
+            if (!targetCard) return;
+            
+            // Check if already analyzed
+            if (targetCard.querySelector('.ai-summary')) {
+                return;
+            }
+            
+            // Show loading
+            const actionsDiv = targetCard.querySelector('.product-actions');
+            actionsDiv.innerHTML = '<div style="text-align: center; color: #667eea;">🤖 AI分析中...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/shopping/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        product_url: product.product_url,
+                        product_title: product.title,
+                        product_price: product.price
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const analysis = data.analysis;
+                
+                // Insert AI summary
+                const summaryHtml = `
+                    <div class="ai-summary">
+                        <div class="ai-summary-title">🤖 AIソムリエの分析</div>
+                        <div class="ai-summary-content">
+                            <p><strong>一言:</strong> ${analysis.one_line_summary || '分析中...'}</p>
+                            <p><strong>強み:</strong></p>
+                            <ul>
+                                ${(analysis.strengths || []).map(s => `<li>${s}</li>`).join('')}
+                            </ul>
+                            <p><strong>シルエット:</strong> ${analysis.silhouette || '-'}</p>
+                            <p><strong>注意点:</strong> ${analysis.cautions || '-'}</p>
+                            <p><strong>向いている人:</strong> ${analysis.suitable_for || '-'}</p>
+                            <p><strong>向いていない人:</strong> ${analysis.not_suitable_for || '-'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                const infoDiv = targetCard.querySelector('.product-info');
+                infoDiv.insertAdjacentHTML('beforeend', summaryHtml);
+                
+                // Restore actions
+                actionsDiv.innerHTML = `
+                    <a href="${product.product_url}" target="_blank" class="btn btn-primary">
+                        🔗 商品ページへ
+                    </a>
+                `;
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                actionsDiv.innerHTML = `
+                    <div style="color: #e74c3c; text-align: center;">分析エラー: ${error.message}</div>
+                    <button class="btn btn-secondary" onclick="analyzeProduct('${productJson}')">
+                        🔄 再試行
+                    </button>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

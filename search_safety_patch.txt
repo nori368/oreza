@@ -1,0 +1,102 @@
+                    // Web search results - card layout with safety check for first result
+                    filteredResults.forEach(async (r, i) => {
+                            const cardDiv = document.createElement('div');
+                            cardDiv.style.cssText = 'margin: 0 16px 16px 16px; padding: 16px; background: #ffffff; border: 1px solid #e8eaed; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); position: relative;';
+                            
+                            // Show loading state for first result
+                            if (i === 0) {
+                                cardDiv.innerHTML = `
+                                    <div style="font-weight: 600; font-size: 15px; margin-bottom: 8px;">
+                                        <a href="${r.link}" class="search-result-link" data-title="${r.title.replace(/"/g, '&quot;')}" data-url="${r.link}" style="color: #0063B2; text-decoration: underline; text-decoration-thickness: 2px; font-weight: 500;">
+                                            ${i + 1}. ${r.title}
+                                        </a>
+                                        <button class="bookmark-btn" data-title="${r.title.replace(/"/g, '&quot;')}" data-url="${r.link}" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px; color: #5f6368; padding: 0; margin-left: 8px;" title="ブックマークに追加">♡</button>
+                                    </div>
+                                    <div style="color: #888; font-size: 13px; margin-bottom: 8px;">🤖 AIが安全性を確認中...</div>
+                                    <div style="color: #5f6368; font-size: 14px; margin-bottom: 8px; line-height: 1.6;">
+                                        ${r.snippet}
+                                    </div>
+                                    <div style="color: #006621; font-size: 13px; word-break: break-all;">
+                                        ${r.link}
+                                    </div>
+                                `;
+                                chatArea.appendChild(cardDiv);
+                                
+                                // Fetch AI safety check for first result
+                                try {
+                                    const summaryResponse = await fetch('/api/url/summarize', {
+                                        method: 'POST',
+                                        headers: {'Content-Type': 'application/json'},
+                                        body: JSON.stringify({ url: r.link })
+                                    });
+                                    
+                                    const summaryData = await summaryResponse.json();
+                                    
+                                    // Determine safety color
+                                    let safetyColor = '#4CAF50';
+                                    let safetyIcon = '✅';
+                                    let safetyText = '安全';
+                                    
+                                    if (summaryData.safety === 'caution') {
+                                        safetyColor = '#FF9800';
+                                        safetyIcon = '⚠️';
+                                        safetyText = '注意';
+                                    } else if (summaryData.safety === 'danger') {
+                                        safetyColor = '#F44336';
+                                        safetyIcon = '⛔';
+                                        safetyText = '危険';
+                                    }
+                                    
+                                    // Update with safety badge
+                                    cardDiv.innerHTML = `
+                                        <div style="font-weight: 600; font-size: 15px; margin-bottom: 8px;">
+                                            <a href="${r.link}" class="search-result-link" data-title="${r.title.replace(/"/g, '&quot;')}" data-url="${r.link}" style="color: #0063B2; text-decoration: underline; text-decoration-thickness: 2px; font-weight: 500;">
+                                                ${i + 1}. ${r.title}
+                                            </a>
+                                            <button class="bookmark-btn" data-title="${r.title.replace(/"/g, '&quot;')}" data-url="${r.link}" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px; color: #5f6368; padding: 0; margin-left: 8px;" title="ブックマークに追加">♡</button>
+                                        </div>
+                                        <div style="color: ${safetyColor}; font-size: 14px; font-weight: 600; text-decoration: underline; text-decoration-thickness: 2px; margin-bottom: 8px;">${safetyIcon} ${safetyText}</div>
+                                        <div style="color: #5f6368; font-size: 14px; margin-bottom: 8px; line-height: 1.6;">
+                                            ${r.snippet}
+                                        </div>
+                                        <div style="color: #006621; font-size: 13px; word-break: break-all;">
+                                            ${r.link}
+                                        </div>
+                                    `;
+                                } catch (error) {
+                                    console.error('Safety check error:', error);
+                                    // Keep original display on error
+                                    cardDiv.innerHTML = `
+                                        <div style="font-weight: 600; font-size: 15px; margin-bottom: 8px;">
+                                            <a href="${r.link}" class="search-result-link" data-title="${r.title.replace(/"/g, '&quot;')}" data-url="${r.link}" style="color: #0063B2; text-decoration: underline; text-decoration-thickness: 2px; font-weight: 500;">
+                                                ${i + 1}. ${r.title}
+                                            </a>
+                                            <button class="bookmark-btn" data-title="${r.title.replace(/"/g, '&quot;')}" data-url="${r.link}" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px; color: #5f6368; padding: 0; margin-left: 8px;" title="ブックマークに追加">♡</button>
+                                        </div>
+                                        <div style="color: #5f6368; font-size: 14px; margin-bottom: 8px; line-height: 1.6;">
+                                            ${r.snippet}
+                                        </div>
+                                        <div style="color: #006621; font-size: 13px; word-break: break-all;">
+                                            ${r.link}
+                                        </div>
+                                    `;
+                                }
+                            } else {
+                                // Other results - normal display
+                                cardDiv.innerHTML = `
+                                    <div style="font-weight: 600; font-size: 15px; margin-bottom: 8px;">
+                                        <a href="${r.link}" class="search-result-link" data-title="${r.title.replace(/"/g, '&quot;')}" data-url="${r.link}" style="color: #0063B2; text-decoration: underline; text-decoration-thickness: 2px; font-weight: 500;">
+                                            ${i + 1}. ${r.title}
+                                        </a>
+                                        <button class="bookmark-btn" data-title="${r.title.replace(/"/g, '&quot;')}" data-url="${r.link}" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px; color: #5f6368; padding: 0; margin-left: 8px;" title="ブックマークに追加">♡</button>
+                                    </div>
+                                    <div style="color: #5f6368; font-size: 14px; margin-bottom: 8px; line-height: 1.6;">
+                                        ${r.snippet}
+                                    </div>
+                                    <div style="color: #006621; font-size: 13px; word-break: break-all;">
+                                        ${r.link}
+                                    </div>
+                                `;
+                                chatArea.appendChild(cardDiv);
+                            }
+                    });
